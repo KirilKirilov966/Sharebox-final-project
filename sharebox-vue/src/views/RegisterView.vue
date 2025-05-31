@@ -50,6 +50,8 @@
   const errorMsg = ref('')
   const successMsg = ref('')
   
+  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev'  // <-- Your backend URL here
+  
   async function register() {
     errorMsg.value = ''
     successMsg.value = ''
@@ -65,14 +67,13 @@
     }
   
     try {
-      const response = await axios.post('http://localhost:5000/register', {
+      const response = await axios.post(`${backendUrl}/register`, {
         username: email.value,
         password: password.value,
       })
   
       if (response.status === 201) {
         successMsg.value = 'Registration successful! You can now log in.'
-        // Optionally redirect after short delay:
         setTimeout(() => {
           router.push('/')
         }, 1500)
@@ -219,4 +220,3 @@
     text-align: center;
   }
   </style>
-  

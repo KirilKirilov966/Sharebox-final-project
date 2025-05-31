@@ -40,6 +40,8 @@
   const password = ref('')
   const errorMsg = ref('')
   
+  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev'  // <-- Your deployed backend URL
+  
   async function login() {
     console.log('Login started')
     errorMsg.value = ''
@@ -49,7 +51,7 @@
     }
   
     try {
-      const response = await axios.post('http://localhost:5000/login', {
+      const response = await axios.post(`${backendUrl}/login`, {
         username: email.value,
         password: password.value,
       })
@@ -193,4 +195,3 @@
     text-align: center;
   }
   </style>
-  

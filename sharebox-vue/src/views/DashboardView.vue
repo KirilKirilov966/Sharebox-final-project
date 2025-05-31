@@ -68,9 +68,11 @@
     token.value = localStorage.getItem('authToken') || ''
   })
   
+  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev'  
+  
   const serverConfig = computed(() => ({
     process: {
-      url: 'http://localhost:5000/upload',
+      url: `${backendUrl}/upload`,
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token.value}`,
@@ -83,8 +85,8 @@
   }))
   
   const uploadedFiles = ref([
-    { name: 'report.pdf', size: '2.1 MB', url: '/uploads/report.pdf' },
-    { name: 'screenshot.png', size: '1.4 MB', url: '/uploads/screenshot.png' },
+    { name: 'report.pdf', size: '2.1 MB', url: `${backendUrl}/uploads/report.pdf` },
+    { name: 'screenshot.png', size: '1.4 MB', url: `${backendUrl}/uploads/screenshot.png` },
   ])
   
   function handleFileUpload(error, file) {
@@ -95,7 +97,7 @@
     uploadedFiles.value.unshift({
       name: file.file.name,
       size: formatBytes(file.file.size),
-      url: `/uploads/${encodeURIComponent(file.file.name)}`,
+      url: `${backendUrl}/uploads/${encodeURIComponent(file.file.name)}`,
     })
   }
   
@@ -275,4 +277,3 @@
     border-radius: 0.4rem;
   }
   </style>
-  
