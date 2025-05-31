@@ -1,6 +1,15 @@
 <template>
     <div class="dashboard-container">
       <button class="btn logout-btn" @click="logout">Logout</button>
+  
+      <div class="theme-toggle">
+        <label class="switch">
+          <input type="checkbox" v-model="isDark" @change="toggleTheme" />
+          <span class="slider"></span>
+        </label>
+        <span>{{ isDark ? 'Dark' : 'Light' }} Mode</span>
+      </div>
+  
       <div class="upload-card animate__animated animate__fadeInUp">
         <h1 class="title">📤 Upload to <span class="brand">ShareBox</span></h1>
         <p class="subtitle">Drag & drop or browse your files</p>
@@ -16,9 +25,12 @@
           @processfile="handleFileUpload"
         />
   
+        <div v-if="uploadProgress > 0" class="progress-bar">
+          <div class="progress" :style="{ width: uploadProgress + '%' }"></div>
+        </div>
+  
         <div class="file-actions">
-          <button class="btn">📋 View All Files</button>
-          <button class="btn secondary">🔗 Copy Link</button>
+          <button class="btn" @click="fetchFiles">📋 View All Files</button>
         </div>
   
         <div class="file-list">
@@ -37,24 +49,22 @@
           </transition-group>
         </div>
       </div>
+  
+      <div v-if="snackbar.visible" class="snackbar">{{ snackbar.message }}</div>
     </div>
   </template>
   
   <script setup>
-  import { ref, computed, watchEffect } from 'vue'
+  import { ref, computed, watchEffect, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   import vueFilePond from 'vue-filepond'
-  
-  // FilePond styles
   import 'filepond/dist/filepond.min.css'
   import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
-  
-  // FilePond plugins
   import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type'
   import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size'
   import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
+  import axios from 'axios'
   
-  // Initialize FilePond with plugins
   const FilePond = vueFilePond(
     FilePondPluginFileValidateType,
     FilePondPluginFileValidateSize,
@@ -63,43 +73,58 @@
   
   const router = useRouter()
   const token = ref(localStorage.getItem('authToken') || '')
-  
   watchEffect(() => {
     token.value = localStorage.getItem('authToken') || ''
   })
   
-  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev'  
+  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev'
+  const uploadedFiles = ref([])
+  const uploadProgress = ref(0)
+  const isDark = ref(true)
+  const snackbar = ref({ visible: false, message: '' })
   
   const serverConfig = computed(() => ({
     process: {
       url: `${backendUrl}/upload`,
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token.value}`,
-      },
+      headers: { Authorization: `Bearer ${token.value}` },
       withCredentials: false,
       timeout: 7000,
-      onload: (res) => console.log('Uploaded:', res),
-      onerror: (err) => console.error('Upload error:', err),
+      onload: (res) => {
+        showSnackbar('Upload successful')
+        fetchFiles()
+        return res
+      },
+      onerror: () => showSnackbar('Upload error'),
+      ondata: (formData) => formData,
+      onprogress: (e) => {
+        if (e.lengthComputable) uploadProgress.value = (e.loaded / e.total) * 100
+      },
     },
   }))
   
-  const uploadedFiles = ref([
-    { name: 'report.pdf', size: '2.1 MB', url: `${backendUrl}/uploads/report.pdf` },
-    { name: 'screenshot.png', size: '1.4 MB', url: `${backendUrl}/uploads/screenshot.png` },
-  ])
-  
   function handleFileUpload(error, file) {
-    if (error) {
-      console.error('Error during file upload:', error)
-      return
-    }
-    uploadedFiles.value.unshift({
-      name: file.file.name,
-      size: formatBytes(file.file.size),
-      url: `${backendUrl}/uploads/${encodeURIComponent(file.file.name)}`,
-    })
+    if (error) return
+    uploadProgress.value = 0
   }
+  
+  function fetchFiles() {
+    axios.get(`${backendUrl}/files`, {
+      headers: { Authorization: `Bearer ${token.value}` },
+    })
+    .then(res => {
+      uploadedFiles.value = res.data.files.map(f => ({
+        name: f.name,
+        size: formatBytes(f.size),
+        url: `${backendUrl}/uploads/${encodeURIComponent(f.name)}`,
+      }))
+    })
+    .catch(() => showSnackbar('Failed to fetch files'))
+  }
+  
+  onMounted(() => {
+    fetchFiles()
+  })
   
   function formatBytes(bytes) {
     if (bytes === 0) return '0 Bytes'
@@ -112,15 +137,25 @@
   const copyLink = async (url) => {
     try {
       await navigator.clipboard.writeText(url)
-      alert('Link copied to clipboard!')
+      showSnackbar('Link copied to clipboard!')
     } catch {
-      alert('Failed to copy link.')
+      showSnackbar('Failed to copy link.')
     }
+  }
+  
+  function showSnackbar(message) {
+    snackbar.value.message = message
+    snackbar.value.visible = true
+    setTimeout(() => (snackbar.value.visible = false), 3000)
   }
   
   function logout() {
     localStorage.removeItem('authToken')
     router.push('/')
+  }
+  
+  function toggleTheme() {
+    document.body.classList.toggle('light-theme', !isDark.value)
   }
   </script>
   
@@ -154,126 +189,80 @@
     background-color: #9b2c2c;
   }
   
-  .upload-card {
-    background-color: #1a1a1a;
-    padding: 2rem;
-    border-radius: 1.5rem;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    width: 100%;
-    max-width: 600px;
-    text-align: center;
-  }
-  
-  .title {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .brand {
-    color: #90cdf4;
-  }
-  
-  .subtitle {
-    color: #888;
-    margin-bottom: 2rem;
-  }
-  
-  .browse {
-    color: #90cdf4;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  
-  .filepond--label {
-    color: #cbd5e0 !important;
-  }
-  
-  .file-actions {
+  .theme-toggle {
     display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-  
-  .btn {
-    padding: 0.75rem 1.5rem;
-    background-color: #90cdf4;
-    color: #1a1a1a;
-    border: none;
-    border-radius: 0.5rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .btn.secondary {
-    background-color: transparent;
-    border: 1px solid #90cdf4;
-    color: #90cdf4;
-  }
-  
-  .btn:hover {
-    background-color: #63b3ed;
-  }
-  
-  .file-list {
-    margin-top: 2rem;
-    text-align: left;
-  }
-  
-  .file-list-title {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: #cbd5e0;
-  }
-  
-  .fade-enter-active, .fade-leave-active {
-    transition: all 0.3s ease;
-  }
-  
-  .fade-enter-from, .fade-leave-to {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  
-  .fade-enter-to, .fade-leave-from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  .file-item {
-    display: flex;
-    justify-content: space-between;
-    background-color: #2a2a2a;
-    padding: 1rem;
-    border-radius: 0.75rem;
-    margin-bottom: 1rem;
     align-items: center;
-  }
-  
-  .file-info {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .file-name {
-    font-weight: bold;
-    color: #e2e8f0;
-  }
-  
-  .file-size {
-    font-size: 0.85rem;
-    color: #a0aec0;
-  }
-  
-  .file-buttons {
-    display: flex;
     gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
   }
   
-  .btn.small {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-    border-radius: 0.4rem;
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 3px; bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .slider {
+    background-color: #3182ce;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+  
+  .snackbar {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2d3748;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 9999;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    background-color: #333;
+    height: 8px;
+    border-radius: 6px;
+    margin-top: 1rem;
+    overflow: hidden;
+  }
+  
+  .progress {
+    background-color: #90cdf4;
+    height: 100%;
+    transition: width 0.3s ease;
   }
   </style>
+  
