@@ -3,3 +3,5 @@ flask-cors
 Flask-JWT-Extended
 Werkzeug
 python-dotenv
+Flask-Bcrypt
+Flask-SQLAlchemy

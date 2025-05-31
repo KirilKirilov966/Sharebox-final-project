@@ -1,0 +1,23 @@
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - sharebox-uploads:/app/uploads
+    environment:
+      - FLASK_ENV=development
+      - SECRET_KEY=your-production-secret
+    restart: unless-stopped
+
+  frontend:
+    build: ./sharebox-vue
+    ports:
+      - "8080:80"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    restart: unless-stopped
+
+volumes:
+  sharebox-uploads:
