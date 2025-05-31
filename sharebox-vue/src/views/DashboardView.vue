@@ -39,7 +39,7 @@
       </div>
       <footer class="footer">
         <hr class="footer-separator" />
-        <p>Created by <strong>Kiril Kiril</strong> — 2025</p>
+        <p>Created by <strong>Kiril Kirilov</strong> — 2025</p>
       </footer>
     </div>
   </template>
