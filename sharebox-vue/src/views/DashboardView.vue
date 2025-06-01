@@ -1,7 +1,7 @@
 <template>
     <div class="dashboard-container relative overflow-hidden">
       <!-- Canvas Animated Background -->
-      <canvas ref="bgCanvas" class="absolute inset-0 -z-10"></canvas>
+      <canvas ref="bgCanvas" class="bg-canvas"></canvas>
   
       <!-- Profile Avatar -->
       <div class="profile-avatar">
@@ -157,7 +157,7 @@
   
   const totalSize = computed(() => {
     const totalBytes = uploadedFiles.value.reduce((acc, file) => {
-      const match = file.size.match(/\d+/)
+      const match = file.size.match(/[\d\.]+/)
       return acc + (match ? parseFloat(match[0]) : 0)
     }, 0)
     return formatBytes(totalBytes)
@@ -178,7 +178,7 @@
   }
   
   function goToSettings() {
-    console.log('Navigate to settings')
+    alert('Settings page coming soon!')
   }
   
   const showProfileMenu = ref(false)
@@ -186,29 +186,36 @@
     showProfileMenu.value = !showProfileMenu.value
   }
   
-  // Canvas Animation Code
+  // ===== Canvas Animation =====
   const bgCanvas = ref(null)
   let ctx = null
   let animationId = null
   
-  const circles = Array.from({ length: 40 }, () => ({
+  // Configurable: number of circles
+  const circles = Array.from({ length: 50 }, () => ({
     x: Math.random() * window.innerWidth,
     y: Math.random() * window.innerHeight,
-    radius: 1 + Math.random() * 3,
+    radius: 2 + Math.random() * 3,
     dx: (Math.random() - 0.5) * 0.5,
     dy: (Math.random() - 0.5) * 0.5,
   }))
   
   function resizeCanvas() {
     const canvas = bgCanvas.value
+    if (!canvas) return
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
+    // Also style, just in case
+    canvas.style.width = window.innerWidth + 'px'
+    canvas.style.height = window.innerHeight + 'px'
+    console.log('Resized canvas:', canvas.width, canvas.height)
   }
   
   function animateCanvas() {
     const canvas = bgCanvas.value
+    if (!canvas || !ctx) return
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = 'rgba(144, 205, 244, 0.3)'
+    ctx.fillStyle = 'rgba(144, 205, 244, 0.16)'
   
     circles.forEach((c) => {
       c.x += c.dx
@@ -227,6 +234,10 @@
   
   function initCanvas() {
     const canvas = bgCanvas.value
+    if (!canvas) {
+      console.log('Canvas not found yet')
+      return
+    }
     ctx = canvas.getContext('2d')
     resizeCanvas()
     animateCanvas()
@@ -239,13 +250,26 @@
   }
   
   onMounted(() => {
-    nextTick(initCanvas)
+    nextTick(() => {
+      console.log('onMounted, canvas:', bgCanvas.value)
+      initCanvas()
+    })
   })
   onBeforeUnmount(cleanupCanvas)
   </script>
   
   <style scoped>
   @import 'animate.css';
+  
+  .bg-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -10;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+  }
   
   .profile-avatar {
     position: absolute;
@@ -269,6 +293,7 @@
     font-weight: bold;
     color: #1a1a1a;
     user-select: none;
+    box-shadow: 0 2px 12px 0 rgba(144,205,244,0.18);
   }
   
   .avatar-dropdown {
@@ -276,13 +301,10 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-  }
-  
-  canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -10;
+    background: #23272b;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    padding: 0.5rem 1rem;
   }
   
   .dashboard-container {
@@ -295,23 +317,6 @@
     padding: 2rem;
     position: relative;
     overflow: hidden;
-  }
-  
-  .logout-btn {
-    align-self: flex-end;
-    background-color: #e53e3e;
-    color: white;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s ease;
-  }
-  
-  .logout-btn:hover {
-    background-color: #9b2c2c;
   }
   
   .upload-card {
@@ -392,13 +397,11 @@
   .fade-leave-active {
     transition: all 0.3s ease;
   }
-  
   .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
     transform: translateY(10px);
   }
-  
   .fade-enter-to,
   .fade-leave-from {
     opacity: 1;
