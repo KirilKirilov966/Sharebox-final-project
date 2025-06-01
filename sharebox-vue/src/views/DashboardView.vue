@@ -1,5 +1,19 @@
 <template>
-    <div class="dashboard-container">
+    <div class="dashboard-container relative overflow-hidden">
+      <!-- Animated Particles Background -->
+      <Particles id="tsparticles" class="absolute inset-0 -z-10" :options="particlesOptions" />
+  
+      <!-- User Avatar/Profile -->
+      <div class="user-profile" @click="toggleProfileMenu">
+        <div class="avatar">KK</div>
+        <transition name="fade">
+          <div v-if="showProfileMenu" class="profile-menu">
+            <p class="profile-name">Welcome, Kiril</p>
+            <button class="btn small" @click="logout">Logout</button>
+          </div>
+        </transition>
+      </div>
+  
       <button class="btn logout-btn" @click="logout">Logout</button>
   
       <div class="upload-card animate__animated animate__fadeInUp">
@@ -8,13 +22,14 @@
           <h1 class="animated-typed text-3xl font-bold mb-2 text-blue-400"></h1>
         </VueTypedJs>
   
-        <!-- Animated Welcome Text -->
+        <!-- Static Welcome Text -->
         <transition name="fade">
-          <p class="text-gray-400 mb-6">Welcome back, Kiril! Let's manage your files securely.</p>
+          <p class="text-gray-400 mb-6">Welcome back! Let's manage your files securely.</p>
         </transition>
   
         <!-- Upload Title -->
-        <h1 class="title">📤 Upload to <span class="brand">ShareBox</span></h1>
+        <h1 class="title">📤 Upload to <span class="brand">ShareBox</span>
+        </h1>
         <p class="subtitle">Drag & drop or browse your files</p>
   
         <!-- File Upload -->
@@ -61,7 +76,7 @@
                 <span class="file-size">{{ file.size }}</span>
               </div>
               <div class="file-buttons">
-                <a :href="file.url" class="btn small" download>📥 Download</a>
+                <a :href="file.url" class="btn small" download>📅 Download</a>
                 <button class="btn small secondary" @click="copyLink(file.url)">🔗 Copy</button>
               </div>
             </li>
@@ -81,12 +96,11 @@
   import { useRouter } from 'vue-router'
   import vueFilePond from 'vue-filepond'
   import VueTypedJs from 'vue-typed-js'
+  import Particles from 'vue3-particles'
   
-  // FilePond styles
   import 'filepond/dist/filepond.min.css'
   import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
   
-  // FilePond plugins
   import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type'
   import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size'
   import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
@@ -99,6 +113,11 @@
   
   const router = useRouter()
   const token = ref(localStorage.getItem('authToken') || '')
+  const showProfileMenu = ref(false)
+  
+  const toggleProfileMenu = () => {
+    showProfileMenu.value = !showProfileMenu.value
+  }
   
   watchEffect(() => {
     token.value = localStorage.getItem('authToken') || ''
@@ -163,6 +182,40 @@
     localStorage.removeItem('authToken')
     router.push('/')
   }
+  
+  const particlesOptions = {
+    background: { color: { value: '#121212' } },
+    fpsLimit: 60,
+    interactivity: {
+      events: {
+        onHover: { enable: true, mode: 'repulse' },
+        resize: true,
+      },
+      modes: {
+        repulse: { distance: 100, duration: 0.4 },
+      },
+    },
+    particles: {
+      color: { value: '#90cdf4' },
+      links: {
+        color: '#90cdf4',
+        distance: 150,
+        enable: true,
+        opacity: 0.5,
+        width: 1,
+      },
+      move: {
+        enable: true,
+        speed: 2,
+        outMode: 'bounce',
+      },
+      number: { value: 60 },
+      opacity: { value: 0.5 },
+      shape: { type: 'circle' },
+      size: { value: { min: 1, max: 4 } },
+    },
+    detectRetina: true,
+  }
   </script>
   
   <style scoped>
@@ -176,167 +229,43 @@
     flex-direction: column;
     align-items: center;
     padding: 2rem;
+    position: relative;
+    overflow: hidden;
   }
   
-  .logout-btn {
-    align-self: flex-end;
-    background-color: #e53e3e;
-    color: white;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-weight: bold;
+  .user-profile {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
     cursor: pointer;
-    border: none;
-    transition: background-color 0.3s ease;
+    z-index: 20;
   }
   
-  .logout-btn:hover {
-    background-color: #9b2c2c;
-  }
-  
-  .upload-card {
-    background-color: #1a1a1a;
-    padding: 2rem;
-    border-radius: 1.5rem;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    width: 100%;
-    max-width: 600px;
-    text-align: center;
-  }
-  
-  .title {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .brand {
-    color: #90cdf4;
-  }
-  
-  .subtitle {
-    color: #888;
-    margin-bottom: 2rem;
-  }
-  
-  .browse {
-    color: #90cdf4;
-    text-decoration: underline;
-    cursor: pointer;
-  }
-  
-  .filepond--label {
-    color: #cbd5e0 !important;
-  }
-  
-  .file-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-  
-  .btn {
-    padding: 0.75rem 1.5rem;
+  .avatar {
     background-color: #90cdf4;
     color: #1a1a1a;
-    border: none;
-    border-radius: 0.5rem;
+    width: 40px;
+    height: 40px;
     font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .btn.secondary {
-    background-color: transparent;
-    border: 1px solid #90cdf4;
-    color: #90cdf4;
-  }
-  
-  .btn:hover {
-    background-color: #63b3ed;
-  }
-  
-  .file-list {
-    margin-top: 2rem;
-    text-align: left;
-  }
-  
-  .file-list-title {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: #cbd5e0;
-  }
-  
-  .fade-enter-active, .fade-leave-active {
-    transition: all 0.3s ease;
-  }
-  
-  .fade-enter-from, .fade-leave-to {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  
-  .fade-enter-to, .fade-leave-from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  .file-item {
+    border-radius: 9999px;
     display: flex;
-    justify-content: space-between;
-    background-color: #2a2a2a;
-    padding: 1rem;
-    border-radius: 0.75rem;
-    margin-bottom: 1rem;
     align-items: center;
+    justify-content: center;
   }
   
-  .file-info {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .file-name {
-    font-weight: bold;
-    color: #e2e8f0;
-  }
-  
-  .file-size {
-    font-size: 0.85rem;
-    color: #a0aec0;
-  }
-  
-  .file-buttons {
-    display: flex;
-    gap: 0.5rem;
-  }
-  
-  .btn.small {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-    border-radius: 0.4rem;
-  }
-  
-  .footer {
-    margin-top: 3rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #2d3748;
-    color: #a0aec0;
-    font-size: 0.85rem;
-    text-align: center;
-    width: 100%;
-    max-width: 600px;
-  }
-  
-  .glass-card {
-    background-color: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
+  .profile-menu {
+    background-color: #2a2a2a;
+    border: 1px solid #90cdf4;
+    border-radius: 0.75rem;
+    margin-top: 0.5rem;
     padding: 1rem;
-    border-radius: 1rem;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    min-width: 160px;
+    z-index: 30;
     text-align: center;
-    color: #e2e8f0;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    color: white;
   }
   </style>
   
