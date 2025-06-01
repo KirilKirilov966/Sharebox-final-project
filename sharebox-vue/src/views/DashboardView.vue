@@ -14,15 +14,15 @@
         </transition>
       </div>
   
-      <div class="upload-card animate__animated animate__fadeInUp mt-16">
+      <div class="upload-card animate__animated animate__fadeInUp">
         <!-- Animated Typing Header -->
         <VueTypedJs :strings="['Welcome to ShareBox', 'Upload and share securely']" type-speed="70" back-speed="50" loop>
           <h1 class="animated-typed text-3xl font-bold mb-2 text-blue-400"></h1>
         </VueTypedJs>
   
-        <!-- Static Welcome Text -->
+        <!-- Animated Welcome Text -->
         <transition name="fade">
-          <p class="text-gray-400 mb-6">Welcome back! Let's manage your files securely.</p>
+          <p class="text-gray-400 mb-6">Welcome back, Kiril! Let's manage your files securely.</p>
         </transition>
   
         <!-- Upload Title -->
@@ -43,7 +43,7 @@
   
         <!-- Actions -->
         <div class="file-actions">
-          <button class="btn">📋 View All Files</button>
+          <button class="btn primary">📋 View All Files</button>
           <button class="btn secondary">🔗 Copy Link</button>
         </div>
   
@@ -73,7 +73,7 @@
                 <span class="file-size">{{ file.size }}</span>
               </div>
               <div class="file-buttons">
-                <a :href="file.url" class="btn small" download>📅 Download</a>
+                <a :href="file.url" class="btn small primary" download>📥 Download</a>
                 <button class="btn small secondary" @click="copyLink(file.url)">🔗 Copy</button>
               </div>
             </li>
@@ -181,21 +181,19 @@
   
   const particlesOptions = {
     background: {
-      color: {
-        value: '#121212'
-      }
+      color: { value: '#121212' },
     },
     fpsLimit: 60,
     interactivity: {
       events: {
         onClick: { enable: true, mode: 'push' },
         onHover: { enable: true, mode: 'repulse' },
-        resize: true
+        resize: true,
       },
       modes: {
         push: { quantity: 4 },
-        repulse: { distance: 100, duration: 0.4 }
-      }
+        repulse: { distance: 100, duration: 0.4 },
+      },
     },
     particles: {
       color: { value: '#90cdf4' },
@@ -204,7 +202,7 @@
         distance: 150,
         enable: true,
         opacity: 0.5,
-        width: 1
+        width: 1,
       },
       collisions: { enable: true },
       move: {
@@ -213,49 +211,27 @@
         outModes: { default: 'bounce' },
         random: false,
         speed: 2,
-        straight: false
+        straight: false,
       },
-      number: { density: { enable: true, area: 800 }, value: 80 },
+      number: {
+        density: { enable: true, area: 800 },
+        value: 80,
+      },
       opacity: { value: 0.5 },
       shape: { type: 'circle' },
-      size: { value: { min: 1, max: 5 } }
+      size: { value: { min: 1, max: 5 } },
     },
-    detectRetina: true
+    detectRetina: true,
   }
   </script>
   
   <style scoped>
-  @import 'animate.css';
-  
-  .dashboard-container {
-    min-height: 100vh;
-    background: linear-gradient(145deg, #1c1c1e, #121212);
-    color: #e2e8f0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .upload-card {
-    background-color: #1a1a1a;
-    padding: 2rem;
-    border-radius: 1.5rem;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    width: 100%;
-    max-width: 600px;
-    text-align: center;
-    margin-top: 5rem;
-  }
-  
   .user-profile {
     position: absolute;
-    top: 2rem;
-    right: 2rem;
+    top: 1.5rem;
+    right: 1.5rem;
     cursor: pointer;
-    z-index: 20;
+    z-index: 10;
   }
   
   .avatar {
