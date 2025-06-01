@@ -1,7 +1,7 @@
 <template>
     <div class="dashboard-container relative overflow-hidden">
-      <!-- Canvas Animated Background -->
-      <canvas ref="bgCanvas" class="bg-canvas"></canvas>
+      <!-- Lottie Animated Background -->
+      <div ref="lottieContainer" class="lottie-bg"></div>
   
       <!-- Profile Avatar -->
       <div class="profile-avatar">
@@ -91,10 +91,11 @@
   </template>
   
   <script setup>
-  import { ref, computed, watchEffect, onMounted, onBeforeUnmount, nextTick } from 'vue'
+  import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue'
   import { useRouter } from 'vue-router'
   import vueFilePond from 'vue-filepond'
   import VueTypedJs from 'vue-typed-js'
+  import lottie from 'lottie-web'
   
   // FilePond styles
   import 'filepond/dist/filepond.min.css'
@@ -178,7 +179,7 @@
   }
   
   function goToSettings() {
-    alert('Settings page coming soon!')
+    alert('Settings (not implemented)')
   }
   
   const showProfileMenu = ref(false)
@@ -186,89 +187,39 @@
     showProfileMenu.value = !showProfileMenu.value
   }
   
-  // ===== Canvas Animation =====
-  const bgCanvas = ref(null)
-  let ctx = null
-  let animationId = null
+  // --- Lottie Animated Background ---
+  import backgroundAnim from '@/assets/background.json' // <-- Make sure the path matches your file!
   
-  // Configurable: number of circles
-  const circles = Array.from({ length: 50 }, () => ({
-    x: Math.random() * window.innerWidth,
-    y: Math.random() * window.innerHeight,
-    radius: 2 + Math.random() * 3,
-    dx: (Math.random() - 0.5) * 0.5,
-    dy: (Math.random() - 0.5) * 0.5,
-  }))
-  
-  function resizeCanvas() {
-    const canvas = bgCanvas.value
-    if (!canvas) return
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-    // Also style, just in case
-    canvas.style.width = window.innerWidth + 'px'
-    canvas.style.height = window.innerHeight + 'px'
-    console.log('Resized canvas:', canvas.width, canvas.height)
-  }
-  
-  function animateCanvas() {
-    const canvas = bgCanvas.value
-    if (!canvas || !ctx) return
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = 'rgba(144, 205, 244, 0.16)'
-  
-    circles.forEach((c) => {
-      c.x += c.dx
-      c.y += c.dy
-  
-      if (c.x < 0 || c.x > canvas.width) c.dx *= -1
-      if (c.y < 0 || c.y > canvas.height) c.dy *= -1
-  
-      ctx.beginPath()
-      ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2)
-      ctx.fill()
-    })
-  
-    animationId = requestAnimationFrame(animateCanvas)
-  }
-  
-  function initCanvas() {
-    const canvas = bgCanvas.value
-    if (!canvas) {
-      console.log('Canvas not found yet')
-      return
-    }
-    ctx = canvas.getContext('2d')
-    resizeCanvas()
-    animateCanvas()
-    window.addEventListener('resize', resizeCanvas)
-  }
-  
-  function cleanupCanvas() {
-    cancelAnimationFrame(animationId)
-    window.removeEventListener('resize', resizeCanvas)
-  }
+  const lottieContainer = ref(null)
+  let lottieInstance = null
   
   onMounted(() => {
-    nextTick(() => {
-      console.log('onMounted, canvas:', bgCanvas.value)
-      initCanvas()
+    lottieInstance = lottie.loadAnimation({
+      container: lottieContainer.value,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      animationData: backgroundAnim,
     })
   })
-  onBeforeUnmount(cleanupCanvas)
+  onBeforeUnmount(() => {
+    if (lottieInstance) lottieInstance.destroy()
+  })
   </script>
   
   <style scoped>
   @import 'animate.css';
   
-  .bg-canvas {
+  .lottie-bg {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: -10;
     width: 100vw;
     height: 100vh;
+    z-index: -10;
     pointer-events: none;
+    /* Optionally fade out background slightly */
+    opacity: 0.7;
   }
   
   .profile-avatar {
@@ -280,7 +231,6 @@
     align-items: center;
     z-index: 10;
   }
-  
   .avatar-wrapper {
     width: 40px;
     height: 40px;
@@ -293,18 +243,12 @@
     font-weight: bold;
     color: #1a1a1a;
     user-select: none;
-    box-shadow: 0 2px 12px 0 rgba(144,205,244,0.18);
   }
-  
   .avatar-dropdown {
     margin-top: 0.5rem;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    background: #23272b;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-    padding: 0.5rem 1rem;
   }
   
   .dashboard-container {
@@ -334,33 +278,27 @@
     font-size: 2rem;
     margin-bottom: 0.5rem;
   }
-  
   .brand {
     color: #90cdf4;
   }
-  
   .subtitle {
     color: #888;
     margin-bottom: 2rem;
   }
-  
   .browse {
     color: #90cdf4;
     text-decoration: underline;
     cursor: pointer;
   }
-  
   .filepond--label {
     color: #cbd5e0 !important;
   }
-  
   .file-actions {
     display: flex;
     justify-content: center;
     gap: 1rem;
     margin-top: 2rem;
   }
-  
   .btn {
     padding: 0.75rem 1.5rem;
     background-color: #90cdf4;
@@ -371,43 +309,34 @@
     cursor: pointer;
     transition: background 0.3s;
   }
-  
   .btn.secondary {
     background-color: transparent;
     border: 1px solid #90cdf4;
     color: #90cdf4;
   }
-  
   .btn:hover {
     background-color: #63b3ed;
   }
-  
   .file-list {
     margin-top: 2rem;
     text-align: left;
   }
-  
   .file-list-title {
     font-size: 1.2rem;
     margin-bottom: 1rem;
     color: #cbd5e0;
   }
-  
-  .fade-enter-active,
-  .fade-leave-active {
+  .fade-enter-active, .fade-leave-active {
     transition: all 0.3s ease;
   }
-  .fade-enter-from,
-  .fade-leave-to {
+  .fade-enter-from, .fade-leave-to {
     opacity: 0;
     transform: translateY(10px);
   }
-  .fade-enter-to,
-  .fade-leave-from {
+  .fade-enter-to, .fade-leave-from {
     opacity: 1;
     transform: translateY(0);
   }
-  
   .file-item {
     display: flex;
     justify-content: space-between;
@@ -417,33 +346,27 @@
     margin-bottom: 1rem;
     align-items: center;
   }
-  
   .file-info {
     display: flex;
     flex-direction: column;
   }
-  
   .file-name {
     font-weight: bold;
     color: #e2e8f0;
   }
-  
   .file-size {
     font-size: 0.85rem;
     color: #a0aec0;
   }
-  
   .file-buttons {
     display: flex;
     gap: 0.5rem;
   }
-  
   .btn.small {
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
     border-radius: 0.4rem;
   }
-  
   .footer {
     margin-top: 3rem;
     padding-top: 1.5rem;
@@ -454,7 +377,6 @@
     width: 100%;
     max-width: 600px;
   }
-  
   .glass-card {
     background-color: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
