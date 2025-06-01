@@ -203,24 +203,19 @@
   }
   
   function animateCanvas() {
-  const canvas = bgCanvas.value
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+    const neonColors = ["#39ff14", "#ffe600", "#00fff7", "#fff700", "#fff", "#00ffa1"];
 
-  circles.forEach((c, i) => {
-    c.x += c.dx
-    c.y += c.dy
-    if (c.x < 0 || c.x > canvas.width) c.dx *= -1
-    if (c.y < 0 || c.y > canvas.height) c.dy *= -1
+   circles.forEach((c, i) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2);
+    ctx.shadowBlur = 25;
+    ctx.shadowColor = neonColors[i % neonColors.length];
+    ctx.fillStyle = ctx.shadowColor;
+    ctx.fill();
+    ctx.restore();
+ });
 
-    ctx.save()
-    ctx.beginPath()
-    ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2)
-    ctx.shadowBlur = 12
-    ctx.shadowColor = i % 3 === 0 ? "#ff72e1" : i % 3 === 1 ? "#90cdf4" : "#ffda85"
-    ctx.fillStyle = ctx.shadowColor
-    ctx.fill()
-    ctx.restore()
-  })
 
   animationId = requestAnimationFrame(animateCanvas)
 }
