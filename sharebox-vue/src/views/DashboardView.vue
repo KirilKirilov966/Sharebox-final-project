@@ -203,24 +203,28 @@
   }
   
   function animateCanvas() {
-    const canvas = bgCanvas.value
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = 'rgba(144, 205, 244, 0.3)'
-  
-    circles.forEach((c) => {
-      c.x += c.dx
-      c.y += c.dy
-  
-      if (c.x < 0 || c.x > canvas.width) c.dx *= -1
-      if (c.y < 0 || c.y > canvas.height) c.dy *= -1
-  
-      ctx.beginPath()
-      ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2)
-      ctx.fill()
-    })
-  
-    animationId = requestAnimationFrame(animateCanvas)
-  }
+  const canvas = bgCanvas.value
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  circles.forEach((c, i) => {
+    c.x += c.dx
+    c.y += c.dy
+    if (c.x < 0 || c.x > canvas.width) c.dx *= -1
+    if (c.y < 0 || c.y > canvas.height) c.dy *= -1
+
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2)
+    ctx.shadowBlur = 12
+    ctx.shadowColor = i % 3 === 0 ? "#ff72e1" : i % 3 === 1 ? "#90cdf4" : "#ffda85"
+    ctx.fillStyle = ctx.shadowColor
+    ctx.fill()
+    ctx.restore()
+  })
+
+  animationId = requestAnimationFrame(animateCanvas)
+}
+
   
   function initCanvas() {
     const canvas = bgCanvas.value
