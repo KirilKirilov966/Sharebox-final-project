@@ -5,34 +5,26 @@
   
       <!-- Profile Avatar -->
       <div class="profile-avatar">
-        <img
-          src="https://api.dicebear.com/7.x/initials/svg?seed=Kiril"
-          alt="User Avatar"
-          class="avatar-img"
-        />
-        <div class="avatar-dropdown">
-          <button @click="logout" class="btn small">Logout</button>
+        <div class="avatar-wrapper" @click="toggleProfileMenu">
+          <div class="avatar-letters">KK</div>
         </div>
+        <transition name="fade">
+          <div v-if="showProfileMenu" class="avatar-dropdown">
+            <button @click="logout" class="btn small">Logout</button>
+            <button @click="goToSettings" class="btn small mt-1">Settings</button>
+          </div>
+        </transition>
       </div>
-  
-      <button class="btn logout-btn" @click="logout">Logout</button>
   
       <div class="upload-card animate__animated animate__fadeInUp">
         <!-- Animated Typing Header -->
-        <VueTypedJs
-          :strings="['Welcome to ShareBox', 'Upload and share securely']"
-          type-speed="70"
-          back-speed="50"
-          loop
-        >
+        <VueTypedJs :strings="['Welcome to ShareBox', 'Upload and share securely']" type-speed="70" back-speed="50" loop>
           <h1 class="animated-typed text-3xl font-bold mb-2 text-blue-400"></h1>
         </VueTypedJs>
   
         <!-- Animated Welcome Text -->
         <transition name="fade">
-          <p class="text-gray-400 mb-6">
-            Welcome back, Kiril! Let's manage your files securely.
-          </p>
+          <p class="text-gray-400 mb-6">Welcome back, Kiril! Let's manage your files securely.</p>
         </transition>
   
         <!-- Upload Title -->
@@ -166,7 +158,7 @@
   
   const totalSize = computed(() => {
     const totalBytes = uploadedFiles.value.reduce((acc, file) => {
-      const match = file.size.match(/[\d\.]+/)
+      const match = file.size.match(/[[\d\.]+]/)
       return acc + (match ? parseFloat(match[0]) : 0)
     }, 0)
     return formatBytes(totalBytes)
@@ -186,38 +178,46 @@
     router.push('/')
   }
   
+  function goToSettings() {
+    // placeholder for settings navigation
+    console.log('Navigate to settings')
+  }
+  
+  const showProfileMenu = ref(false)
+  function toggleProfileMenu() {
+    showProfileMenu.value = !showProfileMenu.value
+  }
+  
   const particlesOptions = {
     background: { color: { value: '#121212' } },
     fpsLimit: 60,
     interactivity: {
-      events: {
-        onClick: { enable: true, mode: 'push' },
-        onHover: { enable: true, mode: 'repulse' },
-        resize: true,
-      },
-      modes: {
-        push: { quantity: 4 },
-        repulse: { distance: 100, duration: 0.4 },
-      },
+      events: { onClick: { enable: true, mode: 'push' }, onHover: { enable: true, mode: 'repulse' }, resize: true },
+      modes: { push: { quantity: 4 }, repulse: { distance: 100, duration: 0.4 } },
     },
     particles: {
       color: { value: '#90cdf4' },
-      links: {
-        color: '#90cdf4',
-        distance: 150,
-        enable: true,
-        opacity: 0.5,
-        width: 1,
-      },
+      links: { color: '#90cdf4', distance: 150, enable: true, opacity: 0.5, width: 1 },
       collisions: { enable: true },
-      move: {
-        direction: 'none',
-        enable: true,
-        outModes: { default: 'bounce' },
-        random: false,
-        speed: 2,
-        straight: false,
-      },
+      move: { direction: 'none', enable: true, outModes: { default: 'bounce' }, random: false, speed: 2, straight: false },
+      number: { density: { enable: true, area: 800 }, value: 80 },
+      opacity: { value: 0.5 },
+      shape: { type: ['circle', 'triangle', 'square'] },
+      size: { value: { min: 1, max: 5 }, animation: { enable: true, speed: 5, minimumValue: 1, sync: false } },
+      rotate: { value: 0, direction: 'random', animation: { enable: true, speed: 5, sync: false } },
+    },
+    detectRetina: true,
+  } },
+    fpsLimit: 60,
+    interactivity: {
+      events: { onClick: { enable: true, mode: 'push' }, onHover: { enable: true, mode: 'repulse' }, resize: true },
+      modes: { push: { quantity: 4 }, repulse: { distance: 100, duration: 0.4 } },
+    },
+    particles: {
+      color: { value: '#90cdf4' },
+      links: { color: '#90cdf4', distance: 150, enable: true, opacity: 0.5, width: 1 },
+      collisions: { enable: true },
+      move: { direction: 'none', enable: true, outModes: { default: 'bounce' }, random: false, speed: 2, straight: false },
       number: { density: { enable: true, area: 800 }, value: 80 },
       opacity: { value: 0.5 },
       shape: { type: 'circle' },
@@ -237,27 +237,31 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    z-index: 10;
   }
   
-  .avatar-img {
+  .avatar-wrapper {
     width: 40px;
     height: 40px;
     border-radius: 9999px;
-    border: 2px solid #90cdf4;
+    background-color: #90cdf4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: transform 0.2s;
-  }
-  
-  .avatar-img:hover {
-    transform: scale(1.1);
+    font-weight: bold;
+    color: #1a1a1a;
+    user-select: none;
   }
   
   .avatar-dropdown {
     margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
   
-  /* Your existing scoped styles below: */
-  
+  /* Rest of your existing styles below */
   .dashboard-container {
     min-height: 100vh;
     background: linear-gradient(145deg, #1c1c1e, #121212);
