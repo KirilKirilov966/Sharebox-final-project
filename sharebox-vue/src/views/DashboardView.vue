@@ -1,7 +1,7 @@
 <template>
     <div class="dashboard-container relative overflow-hidden">
-      <!-- Animated Particles Background -->
-      <Particles id="tsparticles" class="absolute inset-0 -z-10" :options="particlesOptions" />
+      <!-- Canvas Animated Background -->
+      <canvas ref="bgCanvas" class="absolute inset-0 -z-10"></canvas>
   
       <!-- Profile Avatar -->
       <div class="profile-avatar">
@@ -91,11 +91,10 @@
   </template>
   
   <script setup>
-  import { ref, computed, watchEffect } from 'vue'
+  import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue'
   import { useRouter } from 'vue-router'
   import vueFilePond from 'vue-filepond'
   import VueTypedJs from 'vue-typed-js'
-  import Particles from 'vue3-particles'
   
   // FilePond styles
   import 'filepond/dist/filepond.min.css'
@@ -158,7 +157,7 @@
   
   const totalSize = computed(() => {
     const totalBytes = uploadedFiles.value.reduce((acc, file) => {
-      const match = file.size.match(/[[\d\.]+]/)
+      const match = file.size.match(/\d+/)
       return acc + (match ? parseFloat(match[0]) : 0)
     }, 0)
     return formatBytes(totalBytes)
@@ -179,7 +178,6 @@
   }
   
   function goToSettings() {
-    // placeholder for settings navigation
     console.log('Navigate to settings')
   }
   
@@ -188,43 +186,60 @@
     showProfileMenu.value = !showProfileMenu.value
   }
   
-  const particlesOptions = {
-    background: { color: { value: '#121212' } },
-    fpsLimit: 60,
-    interactivity: {
-      events: { onClick: { enable: true, mode: 'push' }, onHover: { enable: true, mode: 'repulse' }, resize: true },
-      modes: { push: { quantity: 4 }, repulse: { distance: 100, duration: 0.4 } },
-    },
-    particles: {
-      color: { value: '#90cdf4' },
-      links: { color: '#90cdf4', distance: 150, enable: true, opacity: 0.5, width: 1 },
-      collisions: { enable: true },
-      move: { direction: 'none', enable: true, outModes: { default: 'bounce' }, random: false, speed: 2, straight: false },
-      number: { density: { enable: true, area: 800 }, value: 80 },
-      opacity: { value: 0.5 },
-      shape: { type: ['circle', 'triangle', 'square'] },
-      size: { value: { min: 1, max: 5 }, animation: { enable: true, speed: 5, minimumValue: 1, sync: false } },
-      rotate: { value: 0, direction: 'random', animation: { enable: true, speed: 5, sync: false } },
-    },
-    detectRetina: true,
-  } },
-    fpsLimit: 60,
-    interactivity: {
-      events: { onClick: { enable: true, mode: 'push' }, onHover: { enable: true, mode: 'repulse' }, resize: true },
-      modes: { push: { quantity: 4 }, repulse: { distance: 100, duration: 0.4 } },
-    },
-    particles: {
-      color: { value: '#90cdf4' },
-      links: { color: '#90cdf4', distance: 150, enable: true, opacity: 0.5, width: 1 },
-      collisions: { enable: true },
-      move: { direction: 'none', enable: true, outModes: { default: 'bounce' }, random: false, speed: 2, straight: false },
-      number: { density: { enable: true, area: 800 }, value: 80 },
-      opacity: { value: 0.5 },
-      shape: { type: 'circle' },
-      size: { value: { min: 1, max: 5 } },
-    },
-    detectRetina: true,
+  // Canvas Animation Code
+  const bgCanvas = ref(null)
+  let ctx = null
+  let animationId = null
+  
+  const circles = Array.from({ length: 40 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    radius: 1 + Math.random() * 3,
+    dx: (Math.random() - 0.5) * 0.5,
+    dy: (Math.random() - 0.5) * 0.5,
+  }))
+  
+  function resizeCanvas() {
+    const canvas = bgCanvas.value
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
   }
+  
+  function animateCanvas() {
+    const canvas = bgCanvas.value
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = 'rgba(144, 205, 244, 0.3)'
+  
+    circles.forEach((c) => {
+      c.x += c.dx
+      c.y += c.dy
+  
+      if (c.x < 0 || c.x > canvas.width) c.dx *= -1
+      if (c.y < 0 || c.y > canvas.height) c.dy *= -1
+  
+      ctx.beginPath()
+      ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2)
+      ctx.fill()
+    })
+  
+    animationId = requestAnimationFrame(animateCanvas)
+  }
+  
+  function initCanvas() {
+    const canvas = bgCanvas.value
+    ctx = canvas.getContext('2d')
+    resizeCanvas()
+    animateCanvas()
+    window.addEventListener('resize', resizeCanvas)
+  }
+  
+  function cleanupCanvas() {
+    cancelAnimationFrame(animationId)
+    window.removeEventListener('resize', resizeCanvas)
+  }
+  
+  onMounted(initCanvas)
+  onBeforeUnmount(cleanupCanvas)
   </script>
   
   <style scoped>
@@ -261,7 +276,13 @@
     align-items: flex-start;
   }
   
-  /* Rest of your existing styles below */
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -10;
+  }
+  
   .dashboard-container {
     min-height: 100vh;
     background: linear-gradient(145deg, #1c1c1e, #121212);
@@ -270,6 +291,8 @@
     flex-direction: column;
     align-items: center;
     padding: 2rem;
+    position: relative;
+    overflow: hidden;
   }
   
   .logout-btn {
@@ -297,6 +320,7 @@
     width: 100%;
     max-width: 600px;
     text-align: center;
+    margin-top: 5rem;
   }
   
   .title {
@@ -425,7 +449,6 @@
     width: 100%;
     max-width: 600px;
   }
-  
   
   .glass-card {
     background-color: rgba(255, 255, 255, 0.05);
