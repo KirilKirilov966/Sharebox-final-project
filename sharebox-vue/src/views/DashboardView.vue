@@ -1,10 +1,23 @@
 <template>
     <div class="dashboard-container">
       <button class="btn logout-btn" @click="logout">Logout</button>
+  
       <div class="upload-card animate__animated animate__fadeInUp">
+        <!-- Animated Typing Header -->
+        <VueTypedJs :strings="['Welcome to ShareBox', 'Upload and share securely']" type-speed="70" back-speed="50" loop>
+          <h1 class="animated-typed text-3xl font-bold mb-2 text-blue-400"></h1>
+        </VueTypedJs>
+  
+        <!-- Animated Welcome Text -->
+        <transition name="fade">
+          <p class="text-gray-400 mb-6">Welcome back, Kiril! Let's manage your files securely.</p>
+        </transition>
+  
+        <!-- Upload Title -->
         <h1 class="title">📤 Upload to <span class="brand">ShareBox</span></h1>
         <p class="subtitle">Drag & drop or browse your files</p>
   
+        <!-- File Upload -->
         <file-pond
           name="file"
           ref="pond"
@@ -16,11 +29,29 @@
           @processfile="handleFileUpload"
         />
   
+        <!-- Actions -->
         <div class="file-actions">
           <button class="btn">📋 View All Files</button>
           <button class="btn secondary">🔗 Copy Link</button>
         </div>
   
+        <!-- Mini Analytics -->
+        <div class="analytics-cards grid grid-cols-1 sm:grid-cols-3 gap-4 my-6">
+          <div class="glass-card">
+            <p class="text-sm text-gray-400">Total Files</p>
+            <h3 class="text-xl font-bold">{{ uploadedFiles.length }}</h3>
+          </div>
+          <div class="glass-card">
+            <p class="text-sm text-gray-400">Total Uploads</p>
+            <h3 class="text-xl font-bold">{{ uploadedFiles.length }}</h3>
+          </div>
+          <div class="glass-card">
+            <p class="text-sm text-gray-400">Total Size</p>
+            <h3 class="text-xl font-bold">{{ totalSize }}</h3>
+          </div>
+        </div>
+  
+        <!-- File List -->
         <div v-if="uploadedFiles.length" class="file-list">
           <h2 class="file-list-title">📂 Uploaded Files</h2>
           <transition-group name="fade" tag="ul">
@@ -37,6 +68,7 @@
           </transition-group>
         </div>
       </div>
+  
       <footer class="footer">
         <hr class="footer-separator" />
         <p>Created by <strong>Kiril Kirilov</strong> — 2025</p>
@@ -48,6 +80,7 @@
   import { ref, computed, watchEffect } from 'vue'
   import { useRouter } from 'vue-router'
   import vueFilePond from 'vue-filepond'
+  import VueTypedJs from 'vue-typed-js'
   
   // FilePond styles
   import 'filepond/dist/filepond.min.css'
@@ -58,7 +91,6 @@
   import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size'
   import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
   
-  // Initialize FilePond with plugins
   const FilePond = vueFilePond(
     FilePondPluginFileValidateType,
     FilePondPluginFileValidateSize,
@@ -110,6 +142,14 @@
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
   
+  const totalSize = computed(() => {
+    const totalBytes = uploadedFiles.value.reduce((acc, file) => {
+      const match = file.size.match(/[\d\.]+/)
+      return acc + (match ? parseFloat(match[0]) : 0)
+    }, 0)
+    return formatBytes(totalBytes)
+  })
+  
   const copyLink = async (url) => {
     try {
       await navigator.clipboard.writeText(url)
@@ -159,7 +199,7 @@
     background-color: #1a1a1a;
     padding: 2rem;
     border-radius: 1.5rem;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     width: 100%;
     max-width: 600px;
     text-align: center;
@@ -287,6 +327,16 @@
     text-align: center;
     width: 100%;
     max-width: 600px;
+  }
+  
+  .glass-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+    border-radius: 1rem;
+    text-align: center;
+    color: #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   }
   </style>
   

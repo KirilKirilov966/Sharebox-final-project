@@ -50,7 +50,7 @@
   const errorMsg = ref('')
   const successMsg = ref('')
   
-  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev'  // <-- Your backend URL here
+  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev'  
   
   async function register() {
     errorMsg.value = ''

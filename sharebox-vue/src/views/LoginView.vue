@@ -40,7 +40,7 @@
   const password = ref('')
   const errorMsg = ref('')
   
-  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev'  // <-- Your deployed backend URL
+  const backendUrl = 'https://backend-lively-sunset-2159.fly.dev' 
   
   async function login() {
     console.log('Login started')
