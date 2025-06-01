@@ -91,7 +91,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue'
+  import { ref, computed, watchEffect, onMounted, onBeforeUnmount, nextTick } from 'vue'
   import { useRouter } from 'vue-router'
   import vueFilePond from 'vue-filepond'
   import VueTypedJs from 'vue-typed-js'
@@ -238,7 +238,9 @@
     window.removeEventListener('resize', resizeCanvas)
   }
   
-  onMounted(initCanvas)
+  onMounted(() => {
+    nextTick(initCanvas)
+  })
   onBeforeUnmount(cleanupCanvas)
   </script>
   
