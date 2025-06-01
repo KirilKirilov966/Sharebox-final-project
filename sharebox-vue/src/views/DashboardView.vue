@@ -18,7 +18,7 @@
   
       <div class="upload-card animate__animated animate__fadeInUp">
         <!-- CSS Typing Animation Header -->
-        <div class="typing-demo">Welcome to ShareBox | Upload and share securely</div>
+        <div class="typing-demo">Welcome to ShareBox</div>
   
         <!-- Animated Welcome Text -->
         <transition name="fade">
