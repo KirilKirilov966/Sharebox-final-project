@@ -14,9 +14,7 @@
         </transition>
       </div>
   
-      <button class="btn logout-btn" @click="logout">Logout</button>
-  
-      <div class="upload-card animate__animated animate__fadeInUp">
+      <div class="upload-card animate__animated animate__fadeInUp mt-16">
         <!-- Animated Typing Header -->
         <VueTypedJs :strings="['Welcome to ShareBox', 'Upload and share securely']" type-speed="70" back-speed="50" loop>
           <h1 class="animated-typed text-3xl font-bold mb-2 text-blue-400"></h1>
@@ -28,8 +26,7 @@
         </transition>
   
         <!-- Upload Title -->
-        <h1 class="title">📤 Upload to <span class="brand">ShareBox</span>
-        </h1>
+        <h1 class="title">📤 Upload to <span class="brand">ShareBox</span></h1>
         <p class="subtitle">Drag & drop or browse your files</p>
   
         <!-- File Upload -->
@@ -113,12 +110,6 @@
   
   const router = useRouter()
   const token = ref(localStorage.getItem('authToken') || '')
-  const showProfileMenu = ref(false)
-  
-  const toggleProfileMenu = () => {
-    showProfileMenu.value = !showProfileMenu.value
-  }
-  
   watchEffect(() => {
     token.value = localStorage.getItem('authToken') || ''
   })
@@ -183,17 +174,28 @@
     router.push('/')
   }
   
+  const showProfileMenu = ref(false)
+  function toggleProfileMenu() {
+    showProfileMenu.value = !showProfileMenu.value
+  }
+  
   const particlesOptions = {
-    background: { color: { value: '#121212' } },
+    background: {
+      color: {
+        value: '#121212'
+      }
+    },
     fpsLimit: 60,
     interactivity: {
       events: {
+        onClick: { enable: true, mode: 'push' },
         onHover: { enable: true, mode: 'repulse' },
-        resize: true,
+        resize: true
       },
       modes: {
-        repulse: { distance: 100, duration: 0.4 },
-      },
+        push: { quantity: 4 },
+        repulse: { distance: 100, duration: 0.4 }
+      }
     },
     particles: {
       color: { value: '#90cdf4' },
@@ -202,19 +204,23 @@
         distance: 150,
         enable: true,
         opacity: 0.5,
-        width: 1,
+        width: 1
       },
+      collisions: { enable: true },
       move: {
+        direction: 'none',
         enable: true,
+        outModes: { default: 'bounce' },
+        random: false,
         speed: 2,
-        outMode: 'bounce',
+        straight: false
       },
-      number: { value: 60 },
+      number: { density: { enable: true, area: 800 }, value: 80 },
       opacity: { value: 0.5 },
       shape: { type: 'circle' },
-      size: { value: { min: 1, max: 4 } },
+      size: { value: { min: 1, max: 5 } }
     },
-    detectRetina: true,
+    detectRetina: true
   }
   </script>
   
@@ -231,6 +237,17 @@
     padding: 2rem;
     position: relative;
     overflow: hidden;
+  }
+  
+  .upload-card {
+    background-color: #1a1a1a;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    margin-top: 5rem;
   }
   
   .user-profile {
