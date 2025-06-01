@@ -3,26 +3,36 @@
       <!-- Animated Particles Background -->
       <Particles id="tsparticles" class="absolute inset-0 -z-10" :options="particlesOptions" />
   
-      <!-- User Avatar/Profile -->
-      <div class="user-profile" @click="toggleProfileMenu">
-        <div class="avatar">KK</div>
-        <transition name="fade">
-          <div v-if="showProfileMenu" class="profile-menu">
-            <p class="profile-name">Welcome, Kiril</p>
-            <button class="btn small" @click="logout">Logout</button>
-          </div>
-        </transition>
+      <!-- Profile Avatar -->
+      <div class="profile-avatar">
+        <img
+          src="https://api.dicebear.com/7.x/initials/svg?seed=Kiril"
+          alt="User Avatar"
+          class="avatar-img"
+        />
+        <div class="avatar-dropdown">
+          <button @click="logout" class="btn small">Logout</button>
+        </div>
       </div>
+  
+      <button class="btn logout-btn" @click="logout">Logout</button>
   
       <div class="upload-card animate__animated animate__fadeInUp">
         <!-- Animated Typing Header -->
-        <VueTypedJs :strings="['Welcome to ShareBox', 'Upload and share securely']" type-speed="70" back-speed="50" loop>
+        <VueTypedJs
+          :strings="['Welcome to ShareBox', 'Upload and share securely']"
+          type-speed="70"
+          back-speed="50"
+          loop
+        >
           <h1 class="animated-typed text-3xl font-bold mb-2 text-blue-400"></h1>
         </VueTypedJs>
   
         <!-- Animated Welcome Text -->
         <transition name="fade">
-          <p class="text-gray-400 mb-6">Welcome back, Kiril! Let's manage your files securely.</p>
+          <p class="text-gray-400 mb-6">
+            Welcome back, Kiril! Let's manage your files securely.
+          </p>
         </transition>
   
         <!-- Upload Title -->
@@ -43,7 +53,7 @@
   
         <!-- Actions -->
         <div class="file-actions">
-          <button class="btn primary">📋 View All Files</button>
+          <button class="btn">📋 View All Files</button>
           <button class="btn secondary">🔗 Copy Link</button>
         </div>
   
@@ -73,7 +83,7 @@
                 <span class="file-size">{{ file.size }}</span>
               </div>
               <div class="file-buttons">
-                <a :href="file.url" class="btn small primary" download>📥 Download</a>
+                <a :href="file.url" class="btn small" download>📥 Download</a>
                 <button class="btn small secondary" @click="copyLink(file.url)">🔗 Copy</button>
               </div>
             </li>
@@ -95,9 +105,11 @@
   import VueTypedJs from 'vue-typed-js'
   import Particles from 'vue3-particles'
   
+  // FilePond styles
   import 'filepond/dist/filepond.min.css'
   import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
   
+  // FilePond plugins
   import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type'
   import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size'
   import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
@@ -174,15 +186,8 @@
     router.push('/')
   }
   
-  const showProfileMenu = ref(false)
-  function toggleProfileMenu() {
-    showProfileMenu.value = !showProfileMenu.value
-  }
-  
   const particlesOptions = {
-    background: {
-      color: { value: '#121212' },
-    },
+    background: { color: { value: '#121212' } },
     fpsLimit: 60,
     interactivity: {
       events: {
@@ -213,10 +218,7 @@
         speed: 2,
         straight: false,
       },
-      number: {
-        density: { enable: true, area: 800 },
-        value: 80,
-      },
+      number: { density: { enable: true, area: 800 }, value: 80 },
       opacity: { value: 0.5 },
       shape: { type: 'circle' },
       size: { value: { min: 1, max: 5 } },
@@ -226,39 +228,208 @@
   </script>
   
   <style scoped>
-  .user-profile {
+  @import 'animate.css';
+  
+  .profile-avatar {
     position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-    cursor: pointer;
-    z-index: 10;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
-  .avatar {
-    background-color: #90cdf4;
-    color: #1a1a1a;
+  .avatar-img {
     width: 40px;
     height: 40px;
-    font-weight: bold;
     border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 2px solid #90cdf4;
+    cursor: pointer;
+    transition: transform 0.2s;
   }
   
-  .profile-menu {
-    background-color: #2a2a2a;
-    border: 1px solid #90cdf4;
-    border-radius: 0.75rem;
+  .avatar-img:hover {
+    transform: scale(1.1);
+  }
+  
+  .avatar-dropdown {
     margin-top: 0.5rem;
-    padding: 1rem;
-    position: absolute;
-    right: 0;
-    top: 50px;
-    min-width: 160px;
-    z-index: 30;
-    text-align: center;
+  }
+  
+  /* Your existing scoped styles below: */
+  
+  .dashboard-container {
+    min-height: 100vh;
+    background: linear-gradient(145deg, #1c1c1e, #121212);
+    color: #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .logout-btn {
+    align-self: flex-end;
+    background-color: #e53e3e;
     color: white;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .logout-btn:hover {
+    background-color: #9b2c2c;
+  }
+  
+  .upload-card {
+    background-color: #1a1a1a;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+  }
+  
+  .title {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .brand {
+    color: #90cdf4;
+  }
+  
+  .subtitle {
+    color: #888;
+    margin-bottom: 2rem;
+  }
+  
+  .browse {
+    color: #90cdf4;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .filepond--label {
+    color: #cbd5e0 !important;
+  }
+  
+  .file-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+  
+  .btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #90cdf4;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .btn.secondary {
+    background-color: transparent;
+    border: 1px solid #90cdf4;
+    color: #90cdf4;
+  }
+  
+  .btn:hover {
+    background-color: #63b3ed;
+  }
+  
+  .file-list {
+    margin-top: 2rem;
+    text-align: left;
+  }
+  
+  .file-list-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    color: #cbd5e0;
+  }
+  
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: all 0.3s ease;
+  }
+  
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  
+  .fade-enter-to,
+  .fade-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .file-item {
+    display: flex;
+    justify-content: space-between;
+    background-color: #2a2a2a;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+  
+  .file-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .file-name {
+    font-weight: bold;
+    color: #e2e8f0;
+  }
+  
+  .file-size {
+    font-size: 0.85rem;
+    color: #a0aec0;
+  }
+  
+  .file-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .btn.small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 0.4rem;
+  }
+  
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #2d3748;
+    color: #a0aec0;
+    font-size: 0.85rem;
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .glass-card {
+    background-color: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+    border-radius: 1rem;
+    text-align: center;
+    color: #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   }
   </style>
   
