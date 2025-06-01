@@ -1,7 +1,7 @@
 <template>
     <div class="dashboard-container relative overflow-hidden">
-      <!-- Lottie Animated Background -->
-      <div ref="lottieContainer" class="lottie-bg"></div>
+      <!-- Canvas Animated Background (you can leave this for a subtle dark bg) -->
+      <canvas ref="bgCanvas" class="absolute inset-0 -z-10"></canvas>
   
       <!-- Profile Avatar -->
       <div class="profile-avatar">
@@ -17,10 +17,8 @@
       </div>
   
       <div class="upload-card animate__animated animate__fadeInUp">
-        <!-- Animated Typing Header -->
-        <VueTypedJs :strings="['Welcome to ShareBox', 'Upload and share securely']" type-speed="70" back-speed="50" loop>
-          <h1 class="animated-typed text-3xl font-bold mb-2 text-blue-400"></h1>
-        </VueTypedJs>
+        <!-- CSS Typing Animation Header -->
+        <div class="typing-demo">Welcome to ShareBox | Upload and share securely</div>
   
         <!-- Animated Welcome Text -->
         <transition name="fade">
@@ -91,11 +89,9 @@
   </template>
   
   <script setup>
-  import { ref, computed, watchEffect, onMounted, onBeforeUnmount } from 'vue'
+  import { ref, computed, watchEffect, onMounted, onBeforeUnmount, nextTick } from 'vue'
   import { useRouter } from 'vue-router'
   import vueFilePond from 'vue-filepond'
-  import VueTypedJs from 'vue-typed-js'
-  import lottie from 'lottie-web'
   
   // FilePond styles
   import 'filepond/dist/filepond.min.css'
@@ -158,7 +154,7 @@
   
   const totalSize = computed(() => {
     const totalBytes = uploadedFiles.value.reduce((acc, file) => {
-      const match = file.size.match(/[\d\.]+/)
+      const match = file.size.match(/\d+/)
       return acc + (match ? parseFloat(match[0]) : 0)
     }, 0)
     return formatBytes(totalBytes)
@@ -179,7 +175,7 @@
   }
   
   function goToSettings() {
-    alert('Settings (not implemented)')
+    console.log('Navigate to settings')
   }
   
   const showProfileMenu = ref(false)
@@ -187,39 +183,88 @@
     showProfileMenu.value = !showProfileMenu.value
   }
   
-  // --- Lottie Animated Background ---
-  import backgroundAnim from '@/assets/background.json' // <-- Make sure the path matches your file!
+  // Canvas Animation Code (kept for subtle background effect)
+  const bgCanvas = ref(null)
+  let ctx = null
+  let animationId = null
   
-  const lottieContainer = ref(null)
-  let lottieInstance = null
+  const circles = Array.from({ length: 40 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    radius: 1 + Math.random() * 3,
+    dx: (Math.random() - 0.5) * 0.5,
+    dy: (Math.random() - 0.5) * 0.5,
+  }))
+  
+  function resizeCanvas() {
+    const canvas = bgCanvas.value
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+  }
+  
+  function animateCanvas() {
+    const canvas = bgCanvas.value
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.fillStyle = 'rgba(144, 205, 244, 0.3)'
+  
+    circles.forEach((c) => {
+      c.x += c.dx
+      c.y += c.dy
+  
+      if (c.x < 0 || c.x > canvas.width) c.dx *= -1
+      if (c.y < 0 || c.y > canvas.height) c.dy *= -1
+  
+      ctx.beginPath()
+      ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2)
+      ctx.fill()
+    })
+  
+    animationId = requestAnimationFrame(animateCanvas)
+  }
+  
+  function initCanvas() {
+    const canvas = bgCanvas.value
+    ctx = canvas.getContext('2d')
+    resizeCanvas()
+    animateCanvas()
+    window.addEventListener('resize', resizeCanvas)
+  }
+  
+  function cleanupCanvas() {
+    cancelAnimationFrame(animationId)
+    window.removeEventListener('resize', resizeCanvas)
+  }
   
   onMounted(() => {
-    lottieInstance = lottie.loadAnimation({
-      container: lottieContainer.value,
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      animationData: backgroundAnim,
-    })
+    nextTick(initCanvas)
   })
-  onBeforeUnmount(() => {
-    if (lottieInstance) lottieInstance.destroy()
-  })
+  onBeforeUnmount(cleanupCanvas)
   </script>
   
   <style scoped>
   @import 'animate.css';
   
-  .lottie-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -10;
-    pointer-events: none;
-    /* Optionally fade out background slightly */
-    opacity: 0.7;
+  .typing-demo {
+    width: 100%;
+    margin: 0 auto 2rem auto;
+    color: #90cdf4;
+    font-size: 2rem;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: .15em solid #90cdf4;
+    animation: typing 3s steps(40, end), blink-caret .75s step-end infinite;
+    max-width: 480px;
+  }
+  
+  @keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+  
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: #90cdf4; }
   }
   
   .profile-avatar {
@@ -231,6 +276,7 @@
     align-items: center;
     z-index: 10;
   }
+  
   .avatar-wrapper {
     width: 40px;
     height: 40px;
@@ -244,11 +290,19 @@
     color: #1a1a1a;
     user-select: none;
   }
+  
   .avatar-dropdown {
     margin-top: 0.5rem;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+  }
+  
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -10;
   }
   
   .dashboard-container {
@@ -278,27 +332,33 @@
     font-size: 2rem;
     margin-bottom: 0.5rem;
   }
+  
   .brand {
     color: #90cdf4;
   }
+  
   .subtitle {
     color: #888;
     margin-bottom: 2rem;
   }
+  
   .browse {
     color: #90cdf4;
     text-decoration: underline;
     cursor: pointer;
   }
+  
   .filepond--label {
     color: #cbd5e0 !important;
   }
+  
   .file-actions {
     display: flex;
     justify-content: center;
     gap: 1rem;
     margin-top: 2rem;
   }
+  
   .btn {
     padding: 0.75rem 1.5rem;
     background-color: #90cdf4;
@@ -309,34 +369,45 @@
     cursor: pointer;
     transition: background 0.3s;
   }
+  
   .btn.secondary {
     background-color: transparent;
     border: 1px solid #90cdf4;
     color: #90cdf4;
   }
+  
   .btn:hover {
     background-color: #63b3ed;
   }
+  
   .file-list {
     margin-top: 2rem;
     text-align: left;
   }
+  
   .file-list-title {
     font-size: 1.2rem;
     margin-bottom: 1rem;
     color: #cbd5e0;
   }
-  .fade-enter-active, .fade-leave-active {
+  
+  .fade-enter-active,
+  .fade-leave-active {
     transition: all 0.3s ease;
   }
-  .fade-enter-from, .fade-leave-to {
+  
+  .fade-enter-from,
+  .fade-leave-to {
     opacity: 0;
     transform: translateY(10px);
   }
-  .fade-enter-to, .fade-leave-from {
+  
+  .fade-enter-to,
+  .fade-leave-from {
     opacity: 1;
     transform: translateY(0);
   }
+  
   .file-item {
     display: flex;
     justify-content: space-between;
@@ -346,27 +417,33 @@
     margin-bottom: 1rem;
     align-items: center;
   }
+  
   .file-info {
     display: flex;
     flex-direction: column;
   }
+  
   .file-name {
     font-weight: bold;
     color: #e2e8f0;
   }
+  
   .file-size {
     font-size: 0.85rem;
     color: #a0aec0;
   }
+  
   .file-buttons {
     display: flex;
     gap: 0.5rem;
   }
+  
   .btn.small {
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
     border-radius: 0.4rem;
   }
+  
   .footer {
     margin-top: 3rem;
     padding-top: 1.5rem;
@@ -377,6 +454,7 @@
     width: 100%;
     max-width: 600px;
   }
+  
   .glass-card {
     background-color: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
