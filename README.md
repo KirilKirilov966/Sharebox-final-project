@@ -89,12 +89,11 @@ auto_stop_machines = "timeout"
 # File Structure
 
 
-│Sharebox-final-project/
-├── backend/                  # Flask backend
-│   ├── app.py                # Main API logic
-│   └── uploads/              # Uploaded files directory
-│
-├── sharebox-vue/             # Vue 3 frontend
+Sharebox-final-project/
+├── backend/
+│   ├── app.py
+│   └── uploads/
+├── sharebox-vue/
 │   ├── src/
 │   │   ├── views/
 │   │   │   ├── DashboardView.vue
@@ -102,8 +101,7 @@ auto_stop_machines = "timeout"
 │   │   │   └── RegisterView.vue
 │   │   └── App.vue
 │   └── index.html
-│
-├── fly.toml                  # Fly.io config for backend
+├── fly.toml
 └── README.md
 
 
