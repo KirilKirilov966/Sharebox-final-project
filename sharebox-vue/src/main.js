@@ -9,6 +9,6 @@ import Particles from 'vue3-particles'
 const app = createApp(App)
 
 app.use(router)
-app.use(Particles) // 👈 register the plugin
+app.use(Particles) 
 
 app.mount('#app')
