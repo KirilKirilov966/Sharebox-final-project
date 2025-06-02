@@ -1,6 +1,6 @@
 
 
-ShareBox is a sleek and modern file-sharing web application built with Vue 3 (frontend) and Python Flask (backend). It allows users to securely upload files, view uploaded items, and retrieve download links — all within a clean and responsive interface.
+ShareBox is a  modern file-sharing web application built with Vue 3 (frontend) and Python Flask (backend). It allows users to securely upload files, view uploaded items, and retrieve download links — all within a clean and responsive interface.
 
  Live Demo
 
