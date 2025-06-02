@@ -11,7 +11,7 @@ from functools import wraps
 app = Flask(__name__)
 CORS(app)
 
-app.config['SECRET_KEY'] = '1234'  # Change this to a secure secret
+app.config['SECRET_KEY'] = '1234'  
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max upload size
