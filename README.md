@@ -88,21 +88,8 @@ auto_stop_machines = "timeout"
 
 # File Structure
 
+# Project Structure: Sharebox-final-project
 
-Sharebox-final-project/
-├── backend/
-│   ├── app.py
-│   └── uploads/
-├── sharebox-vue/
-│   ├── src/
-│   │   ├── views/
-│   │   │   ├── DashboardView.vue
-│   │   │   ├── LoginView.vue
-│   │   │   └── RegisterView.vue
-│   │   └── App.vue
-│   └── index.html
-├── fly.toml
-└── README.md
 
 
 ---
