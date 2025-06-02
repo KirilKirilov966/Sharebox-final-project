@@ -129,8 +129,8 @@ Year: 2025
 
 # Roadmap
 
-- Remove static demo files
-- Add footer with credits
-- File upload progress bar
+- Remove static demo files - Done
+- Add footer with credits - Done
+- File upload progress bar 
 - Dark/light mode toggle
 - Snackbar copy notifications
